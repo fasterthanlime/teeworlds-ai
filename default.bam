@@ -155,9 +155,9 @@ function build(settings)
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	
 	-- ooc AI !
-	settings.link.flags:Add("../teeworlds-ooc/AI.o")
+	settings.link.flags:Add("ooc-ai/AI.o")
 	settings.link.flags:Add("-lgc")
-	settings.cc.includes:Add("../teeworlds-ooc/")
+	settings.cc.includes:Add("ooc-ai/")
 	
 	-- build game components
 	engine_settings = settings:Copy()

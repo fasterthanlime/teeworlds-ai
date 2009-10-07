@@ -146,7 +146,6 @@ int CONTROLS::snapinput(int *data)
 			input_data.target_y = (int)(cosf(t*3)*100.0f);
 		}
 		
-<<<<<<< HEAD
 		/////////////////////////////////// THIS IS MY IA BITCH DON'T TOUCH
 		
 		static AI *ai = NULL;
@@ -156,10 +155,18 @@ int CONTROLS::snapinput(int *data)
 			ai = getAI();
 		}
 		
+		float char_posx = gameclient.local_character_pos.x;
+		float char_posy = gameclient.local_character_pos.y;
+		
+		for(int i=0;i<gameclient.chars.n;i++){
+			vec2 pos = gameclient.chars.pos[i];
+			dbg_msg("ai","client %d: %f,%f",i,pos.x,pos.y);
+		}
+		
 		if(true) {
 		
 			float t = client_localtime();
-			uint32_t action = AI_step(ai, t, gameclient.local_character_pos.x, gameclient.local_character_pos.y);
+			uint32_t action = AI_step(ai, t, char_posx, char_posy);
 			//dbg_msg("ia", "got action = %x", action);
 			
 			if(action & Actions_JUMP) {
@@ -180,28 +187,14 @@ int CONTROLS::snapinput(int *data)
 		}
 		
 		/////////////////////////////////// THIS IS MY IA BITCH DON'T TOUCH
-
-=======
+		
 		//================ TEH HACK BEGINS HERE !!! ==========================
-		float char_posx = gameclient.local_character_pos.x;
-		float char_posy = gameclient.local_character_pos.y;
 		
-		for(int i=0;i<gameclient.chars.n;i++){
-			vec2 pos = gameclient.chars.pos[i];
-			dbg_msg("ai","client %d: %f,%f",i,pos.x,pos.y);
-		}
-		
+		/*
 		static double cdown = 100;
 		static bool jjump = true;
 		jjump = !jjump;
 		cdown++;
-	
-		for(int i = 0; i < MAX_CLIENTS ; i++) {
-			if(gameclient.snap.characters[i].active){
-				vec2 enn_pos = gameclient.snap.characters[i].position;
-				dbg_msg("ai","client %d: %d,%d",i,enn_pos.x,enn_pos.y);
-			}
-		}
 		
 		if(rand() % 50 == 10){
 			mouse_pos.x = cos(rand() % 100) * 100 + 50;
@@ -231,11 +224,10 @@ int CONTROLS::snapinput(int *data)
 		else{
 			input_data.direction = -1;
 		}
-		
+		*/
 		
 		//==================================================================
-		
->>>>>>> e2563259387466a281dc4a9afb5d54e46d70a960
+
 		// check if we need to send input
 		if(input_data.direction != last_data.direction) send = true;
 		else if(input_data.jump != last_data.jump) send = true;
