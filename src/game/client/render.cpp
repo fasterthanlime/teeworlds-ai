@@ -179,7 +179,7 @@ void render_tee(ANIMSTATE *anim, TEE_RENDER_INFO *info, int emote, vec2 dir, vec
 				gfx_setcolor(info->color_body.r, info->color_body.g, info->color_body.b, 1.0f);
 				vec2 body_pos = position + vec2(anim->body.x, anim->body.y)*animscale;
 				select_sprite(outline?SPRITE_TEE_BODY_OUTLINE:SPRITE_TEE_BODY, 0, 0, 0);
-				gfx_quads_draw(body_pos.x, body_pos.y, basesize, basesize);
+				gfx_quads_draw(body_pos.x , body_pos.y , basesize, basesize);
 
 				// draw eyes
 				if(p == 1)
