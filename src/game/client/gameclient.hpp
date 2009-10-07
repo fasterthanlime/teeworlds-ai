@@ -3,6 +3,7 @@
 #include <game/gamecore.hpp>
 #include "render.hpp"
 
+
 class GAMECLIENT
 {
 	class STACK
@@ -23,6 +24,11 @@ class GAMECLIENT
 	STACK all;
 	STACK input;
 	
+	vec2* getChars();
+	
+	
+	
+	
 	
 	void dispatch_input();
 	void process_events();
@@ -38,7 +44,11 @@ public:
 	bool suppress_events;
 	bool new_tick;
 	bool new_predicted_tick;
-
+	struct CHARS {
+		int n;
+		vec2* pos;
+	};
+	CHARS chars;
 	// TODO: move this
 	TUNING_PARAMS tuning;
 	

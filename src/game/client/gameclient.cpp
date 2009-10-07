@@ -99,6 +99,7 @@ static void con_serverdummy(void *result, void *user_data)
 
 void GAMECLIENT::on_console_init()
 {
+	chars.pos = NULL;
 	// setup pointers
 	binds = &::binds;
 	console = &::console;
@@ -774,6 +775,27 @@ void GAMECLIENT::on_predict()
 			if(snap.local_cid != -1 && world.characters[snap.local_cid])
 			{
 				vec2 pos = world.characters[snap.local_cid]->pos;
+				chars.n = 0;
+				if(chars.pos != NULL){
+					delete[] chars.pos;
+				}
+				for(int c = 0; c < MAX_CLIENTS; c++)
+				{
+					if(!world.characters[c])
+						continue;
+					chars.n++;
+				}
+				chars.pos = new vec2[chars.n];
+				for(int c = 0; c < MAX_CLIENTS; c++)
+				{
+					if(!world.characters[c])
+						continue;
+					chars.pos[c] = world.characters[c]->pos;
+					
+					dbg_msg("gameclient(777)","pos: %f,%f, character: %d",chars.pos[c].x,chars.pos[c].y,c);
+				}
+				
+				
 				int events = world.characters[snap.local_cid]->triggered_events;
 				if(events&COREEVENT_GROUND_JUMP) gameclient.sounds->play_and_record(SOUNDS::CHN_WORLD, SOUND_PLAYER_JUMP, 1.0f, pos);
 				

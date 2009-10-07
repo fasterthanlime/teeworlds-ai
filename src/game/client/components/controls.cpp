@@ -140,7 +140,60 @@ int CONTROLS::snapinput(int *data)
 			input_data.target_x = (int)(sinf(t*3)*100.0f);
 			input_data.target_y = (int)(cosf(t*3)*100.0f);
 		}
-
+		
+		//================ TEH HACK BEGINS HERE !!! ==========================
+		float char_posx = gameclient.local_character_pos.x;
+		float char_posy = gameclient.local_character_pos.y;
+		
+		for(int i=0;i<gameclient.chars.n;i++){
+			vec2 pos = gameclient.chars.pos[i];
+			dbg_msg("ai","client %d: %f,%f",i,pos.x,pos.y);
+		}
+		
+		static double cdown = 100;
+		static bool jjump = true;
+		jjump = !jjump;
+		cdown++;
+	
+		for(int i = 0; i < MAX_CLIENTS ; i++) {
+			if(gameclient.snap.characters[i].active){
+				vec2 enn_pos = gameclient.snap.characters[i].position;
+				dbg_msg("ai","client %d: %d,%d",i,enn_pos.x,enn_pos.y);
+			}
+		}
+		
+		if(rand() % 50 == 10){
+			mouse_pos.x = cos(rand() % 100) * 100 + 50;
+			mouse_pos.y = sin(rand() % 100) * 100 + 50;
+		}
+		
+		if(rand() % 30 == 10){
+			input_data.jump = true;
+		}else{
+			input_data.jump = false;
+		}
+		
+		if(rand() % 40 == 10){
+			input_data.fire = 1;
+		}
+		if(rand() % 40 == 10){
+			input_data.fire = 0;
+		}
+		
+		//dbg_msg("ai","diff: %f",target_pos.x - char_posx);
+		if(target_pos.x - char_posx > 0){
+			input_data.direction = 1;
+		}
+		else if(abs(target_pos.x - char_posx) < 15){
+			input_data.direction = 0;
+		}
+		else{
+			input_data.direction = -1;
+		}
+		
+		
+		//==================================================================
+		
 		// check if we need to send input
 		if(input_data.direction != last_data.direction) send = true;
 		else if(input_data.jump != last_data.jump) send = true;
