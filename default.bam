@@ -156,7 +156,7 @@ function build(settings)
 	
 	-- ooc AI !
 	settings.link.flags:Add("ooc-ai/AI.o")
-	settings.link.flags:Add("-lgc")
+	settings.link.flags:Add("ooc-ai/libs/libgc.a")
 	settings.cc.includes:Add("ooc-ai/")
 	
 	-- build game components
