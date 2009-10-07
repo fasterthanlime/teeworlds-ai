@@ -792,7 +792,7 @@ void GAMECLIENT::on_predict()
 						continue;
 					chars.pos[c] = world.characters[c]->pos;
 					
-					dbg_msg("gameclient(777)","pos: %f,%f, character: %d",chars.pos[c].x,chars.pos[c].y,c);
+					//dbg_msg("gameclient(777)","pos: %f,%f, character: %d",chars.pos[c].x,chars.pos[c].y,c);
 				}
 				
 				
