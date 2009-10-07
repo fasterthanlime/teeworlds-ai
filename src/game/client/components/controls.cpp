@@ -6,6 +6,11 @@
 #include <game/client/components/chat.hpp>
 #include <game/client/components/menus.hpp>
 
+// ooc AI!
+extern "C" {
+	#include <AI.h>
+}
+
 #include "controls.hpp"
 
 CONTROLS::CONTROLS()
@@ -140,6 +145,40 @@ int CONTROLS::snapinput(int *data)
 			input_data.target_x = (int)(sinf(t*3)*100.0f);
 			input_data.target_y = (int)(cosf(t*3)*100.0f);
 		}
+		
+		/////////////////////////////////// THIS IS MY IA BITCH DON'T TOUCH
+		
+		static AI *ai = NULL;
+		if(!ai) {
+			dbg_msg("ia", "Initializing AI");
+			_AI_load();
+			ai = getAI();
+		}
+		
+		if(true) {
+		
+			float t = client_localtime();
+			uint32_t action = AI_step(ai, t, gameclient.local_character_pos.x, gameclient.local_character_pos.y);
+			//dbg_msg("ia", "got action = %x", action);
+			
+			if(action & Actions_JUMP) {
+				input_data.jump = true;
+			} else {
+				input_data.jump = false;
+			}
+				
+			if(action & Actions_LEFT)
+				input_data.direction = -1;
+				
+			if(action & Actions_RIGHT)
+				input_data.direction = 1;
+				
+			if(action & Actions_FIRE)
+				input_data.fire = true;
+		
+		}
+		
+		/////////////////////////////////// THIS IS MY IA BITCH DON'T TOUCH
 
 		// check if we need to send input
 		if(input_data.direction != last_data.direction) send = true;

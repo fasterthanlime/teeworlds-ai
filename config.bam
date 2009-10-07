@@ -1,0 +1,8 @@
+compiler.value = 'gcc'
+stackprotector.value = 1
+zlib.value = 1
+zlib.include_path = nil
+sdl.value = 1
+sdl.use_sdlconfig = 1
+sdl.use_win32sdl = nil
+sdl.use_osxframework = nil

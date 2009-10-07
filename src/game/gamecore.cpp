@@ -373,7 +373,7 @@ void CHARACTER_CORE::tick(bool use_input)
 				//release_hooked();
 		}
 		
-		// don't do this hook rutine when we are hook to a player
+		// don't do this hook routine when we are hook to a player
 		if(hooked_player == -1 && distance(hook_pos, pos) > 46.0f)
 		{
 			vec2 hookvel = normalize(hook_pos-pos)*world->tuning.hook_drag_accel;

@@ -154,6 +154,11 @@ function build(settings)
 	wavpack = Compile(settings, Collect("src/engine/external/wavpack/*.c"))
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	
+	-- ooc AI !
+	settings.link.flags:Add("../teeworlds-ooc/AI.o")
+	settings.link.flags:Add("-lgc")
+	settings.cc.includes:Add("../teeworlds-ooc/")
+	
 	-- build game components
 	engine_settings = settings:Copy()
 	server_settings = engine_settings:Copy()
