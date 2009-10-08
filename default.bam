@@ -155,7 +155,7 @@ function build(settings)
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	
 	-- ooc AI !
-	settings.link.flags:Add("ooc-ai/AI.o")
+	settings.link.flags:Add("ooc-ai/ooc-ai.o")
 	settings.link.flags:Add("ooc-ai/libs/libgc.a")
 	settings.cc.includes:Add("ooc-ai/")
 	

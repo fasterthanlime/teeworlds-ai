@@ -3,6 +3,10 @@
 #include <game/gamecore.hpp>
 #include "render.hpp"
 
+// ooc AI!
+extern "C" {
+	#include <AI.h>
+}
 
 class GAMECLIENT
 {
@@ -24,12 +28,6 @@ class GAMECLIENT
 	STACK all;
 	STACK input;
 	
-	vec2* getChars();
-	
-	
-	
-	
-	
 	void dispatch_input();
 	void process_events();
 	void update_local_character_pos();
@@ -44,11 +42,10 @@ public:
 	bool suppress_events;
 	bool new_tick;
 	bool new_predicted_tick;
-	struct CHARS {
-		int n;
-		vec2* pos;
-	};
-	CHARS chars;
+
+	int numChars;
+	struct Vector2 chars[MAX_CLIENTS];
+	
 	// TODO: move this
 	TUNING_PARAMS tuning;
 	

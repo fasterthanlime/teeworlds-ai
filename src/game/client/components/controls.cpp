@@ -5,6 +5,7 @@
 #include <game/client/component.hpp>
 #include <game/client/components/chat.hpp>
 #include <game/client/components/menus.hpp>
+#include <string.h>
 
 // ooc AI!
 extern "C" {
@@ -151,40 +152,41 @@ int CONTROLS::snapinput(int *data)
 		static AI *ai = NULL;
 		if(!ai) {
 			dbg_msg("ia", "Initializing AI");
-			_AI_load();
-			ai = getAI();
+			_ooc_ai_load();
+			ai = NddAI_new();
 		}
 		
-		float char_posx = gameclient.local_character_pos.x;
-		float char_posy = gameclient.local_character_pos.y;
+		struct GameInfo info;
+		info.time = client_localtime();
 		
-		for(int i=0;i<gameclient.chars.n;i++){
-			vec2 pos = gameclient.chars.pos[i];
-			dbg_msg("ai","client %d: %f,%f",i,pos.x,pos.y);
-		}
+		info.pos.x = gameclient.local_character_pos.x;
+		info.pos.y = gameclient.local_character_pos.y;
 		
-		if(true) {
+		info.mouse.x = mouse_pos.x;
+		info.mouse.y = mouse_pos.y;
 		
-			float t = client_localtime();
-			uint32_t action = AI_step(ai, t, char_posx, char_posy);
-			//dbg_msg("ia", "got action = %x", action);
+		info.target.x = input_data.target_x;
+		info.target.y = input_data.target_y;
+		
+		info.numChars = gameclient.numChars;
+		info.chars = gameclient.chars;
+		
+		struct Answer answer = AI_step(ai, info);
+		uint32_t action = answer.action;
+		//dbg_msg("ia", "got action = %x", action);
+		
+		input_data.jump = (action & Actions_JUMP);
 			
-			if(action & Actions_JUMP) {
-				input_data.jump = true;
-			} else {
-				input_data.jump = false;
-			}
-				
-			if(action & Actions_LEFT)
-				input_data.direction = -1;
-				
-			if(action & Actions_RIGHT)
-				input_data.direction = 1;
-				
-			if(action & Actions_FIRE)
-				input_data.fire = true;
-		
-		}
+		if(action & Actions_LEFT)
+			input_data.direction = -1;
+			
+		if(action & Actions_RIGHT)
+			input_data.direction = 1;
+			
+		if(action & Actions_FIRE)
+			input_data.fire = true;
+			
+		input_data.hook = (action & Actions_HOOK);
 		
 		/////////////////////////////////// THIS IS MY IA BITCH DON'T TOUCH
 		

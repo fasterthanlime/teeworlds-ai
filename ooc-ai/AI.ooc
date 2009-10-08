@@ -1,4 +1,37 @@
 include stdint
+use math
+
+dbg_msg: extern proto func (module, fmt: String, ...)
+srand: extern func(Int)
+rand: extern func -> Int
+
+Answer: cover {
+	action: Action
+	target, mouse: Vector2*
+}
+
+Actions: class {
+	
+	NONE  = 0,
+	JUMP  = 0b00000001,
+	LEFT  = 0b00000010,
+	RIGHT = 0b00000100,
+	FIRE  = 0b00001000,
+	HOOK  = 0b00010000 : static const Action
+	
+}
+
+Vector2: cover {
+	x, y: Float
+}
+
+GameInfo: cover {
+	time: Float
+	pos, target, mouse: Vector2
+	
+	numChars: Int
+	chars: Vector2*
+}
 
 Action: cover from UInt32 {
 
@@ -13,61 +46,37 @@ Action: cover from UInt32 {
 	
 }
 
-Actions: class {
-	
-	NONE  = 0,
-	JUMP  = 0b00000001,
-	LEFT  = 0b00000010,
-	RIGHT = 0b00000100,
-	FIRE  = 0b00001000 : static const Action
-	
-}
-
+/**
+ * 
+ */
 AI: abstract class {
 
-	step: abstract func (localTime: Float, posx, posy: Float) -> Action
-
-}
-
-getAI: func -> AI { DummyAI new() }
-
-dbg_msg: extern proto func (module, fmt: String, ...)
-
-DummyAI: class extends AI {
+	answer : Answer
 	
-	MAX_BUMP := static 20
-	bumpCount := 0
-	left := true
-	
-	lastx := 0.0; lasty := 0.0
-	
-	step: func (localTime: Float, posx, posy: Float) -> Action {
+	hookCount := 0
+
+	stepImpl: abstract func (info: GameInfo@)
+
+	step: func (info: GameInfo) -> Answer {
+		answer action = 0
+		answer target = null
+		answer mouse = null
+
+		stepImpl(info&)
 		
-		dbg_msg("ia", "t = %.2f\t pos = (%.0f, %.0f) last = (%.0f, %.0f), bumpCount = %d", localTime, posx, posy, lastx, lasty, bumpCount)
-		
-		action = 0 : Action
-		
-		if((lastx - posx) abs() < 3.0) {
-			bumpCount += 1
-		} else {
-			bumpCount = 0
+		if(hookCount > 0) {
+			hookCount -= 1
+			hook()
 		}
 		
-		if(bumpCount >= MAX_BUMP) {
-			bumpCount = 0
-			left = !left
-			action |= Actions JUMP
-		}
-		action |= (left ? Actions LEFT : Actions RIGHT)
-	
-		action print()
-		println()
-		
-		lastx = posx
-		lasty = posy
-	
-		return action
-		
+		return answer
 	}
+	
+	jump:  func { answer action |= Actions JUMP  }
+	left:  func { answer action |= Actions LEFT  }
+	right: func { answer action |= Actions RIGHT }
+	fire:  func { answer action |= Actions FIRE  }
+	hook:  func { answer action |= Actions HOOK  }
+	hook:  func ~count (time: Int) { hookCount = time }
 	
 }

@@ -99,7 +99,6 @@ static void con_serverdummy(void *result, void *user_data)
 
 void GAMECLIENT::on_console_init()
 {
-	chars.pos = NULL;
 	// setup pointers
 	binds = &::binds;
 	console = &::console;
@@ -774,23 +773,22 @@ void GAMECLIENT::on_predict()
 			
 			if(snap.local_cid != -1 && world.characters[snap.local_cid])
 			{
+				numChars = 0;
 				vec2 pos = world.characters[snap.local_cid]->pos;
-				chars.n = 0;
-				if(chars.pos != NULL){
-					delete[] chars.pos;
-				}
 				for(int c = 0; c < MAX_CLIENTS; c++)
 				{
 					if(!world.characters[c])
 						continue;
-					chars.n++;
+					numChars++;
 				}
-				chars.pos = new vec2[chars.n];
+				
 				for(int c = 0; c < MAX_CLIENTS; c++)
 				{
 					if(!world.characters[c])
 						continue;
-					chars.pos[c] = world.characters[c]->pos;
+					vec2 pos = world.characters[c]->pos;
+					chars[c].x = pos.x;
+					chars[c].y = pos.y;
 					
 					//dbg_msg("gameclient(777)","pos: %f,%f, character: %d",chars.pos[c].x,chars.pos[c].y,c);
 				}

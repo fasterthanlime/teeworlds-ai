@@ -7,13 +7,32 @@
 #define Actions_LEFT   0x02
 #define Actions_RIGHT  0x04
 #define Actions_FIRE   0x08
+#define Actions_HOOK   0x10
 
-typedef uint32_t Action;
 typedef struct _AI AI;
 
-Action AI_step(AI *_this, float localTime, float posx, float posy);
-void _AI_load();
-AI *getAI();
+struct Vector2 {
+	float x, y;
+};
+
+struct Answer {
+	uint32_t action;
+	Vector2 *target, *mouse;
+};
+
+struct GameInfo {
+	float time;
+	struct Vector2 pos, target, mouse;
+	
+	int numChars;
+	struct Vector2 *chars;
+};
+
+void _ooc_ai_load();
+
+AI *NddAI_new();
+AI *EagleAI_new();
+struct Answer AI_step(AI *_this, struct GameInfo info);
 
 #endif // ___AI__
 
