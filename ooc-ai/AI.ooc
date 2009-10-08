@@ -1,3 +1,4 @@
+import Vector2, Action
 include stdint
 use math
 
@@ -6,41 +7,6 @@ dbg_msg: extern proto func (module, fmt: String, ...)
 Answer: cover {
 	action: Action
 	target, mouse: Vector2*
-}
-
-Actions: class {
-	
-	NONE  = 0,
-	JUMP  = 0b00000001,
-	LEFT  = 0b00000010,
-	RIGHT = 0b00000100,
-	FIRE  = 0b00001000,
-	HOOK  = 0b00010000 : static const Action
-	
-}
-
-Vector2: cover {
-	x, y: Float
-
-	length: func -> Double {
-		return sqrt(x*x + y*y)
-	}
-	
-	isZero: func -> Bool { x == 0.0 && y == 0.0 }
-}
-
-operator - (v1, v2: Vector2) -> Vector2 {
-	v : Vector2
-	v x = v1 x - v2 x
-	v y = v1 y - v2 y
-	return v
-}
-
-operator * (v: Vector2, f: Float) -> Vector2 {
-	vout : Vector2
-	vout x = v x * f
-	vout y = v y * f
-	return vout
 }
 
 GameInfo: cover {
@@ -52,19 +18,6 @@ GameInfo: cover {
 	chars: Vector2*
 }
 
-Action: cover from UInt32 {
-
-	print: func {
-		printf("[ ")
-		if(this & Actions JUMP)  printf("jump ")
-		if(this & Actions LEFT)  printf("left ")
-		if(this & Actions RIGHT) printf("right ")
-		if(this & Actions FIRE)  printf("fire ")
-		printf("]")
-	}
-	
-}
-
 /**
  * 
  */
@@ -73,6 +26,9 @@ AI: abstract class {
 	answer : Answer
 	
 	hookCount := 0
+	
+	mouseWish := Vector2 new(0, 0)
+	mouseReal := Vector2 new(0, 0)
 
 	stepImpl: abstract func (info: GameInfo@)
 
@@ -83,10 +39,18 @@ AI: abstract class {
 
 		stepImpl(info&)
 		
+		hookCount -= 1
 		if(hookCount > 0) {
-			hookCount -= 1
 			hook()
 		}
+		
+		diff := mouseWish - mouseReal
+		//printf("mouseReal = (%.0f, %.0f), mouseWish = (%.0f, %.0f), diff = (%.0f, %.0f)\n",
+			//mouseReal x, mouseReal y, mouseWish x, mouseWish y, diff x, diff y)
+		diff = diff * 0.5
+		mouseReal = mouseReal + diff
+		
+		answer mouse = mouseReal&
 		
 		return answer
 	}
@@ -105,9 +69,8 @@ AI: abstract class {
 	}
 	
 	mouse: func (x, y: Float) {
-		answer mouse = gc_malloc(Vector2 size)
-		answer mouse@ x = x
-		answer mouse@ y = y
+		mouseWish x = x
+		mouseWish y = y
 	}
 	
 }

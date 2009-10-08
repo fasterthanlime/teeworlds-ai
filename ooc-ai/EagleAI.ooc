@@ -1,5 +1,4 @@
-import AI
-use math
+import AI, Vector2
 
 EagleAI: class extends AI {
 	
