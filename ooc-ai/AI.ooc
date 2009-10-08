@@ -23,6 +23,9 @@ Actions: class {
 
 Vector2: cover {
 	x, y: Float
+	length: func -> Double {
+		return sqrt(x*x + y*y)
+	}
 }
 
 operator - (v1, v2: Vector2) -> Vector2 {
