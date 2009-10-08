@@ -3,4 +3,5 @@ teeworlds_d
 teeworlds_srv_d
 objs
 ooc-ai/out/
+ooc_tmp
 *.o
