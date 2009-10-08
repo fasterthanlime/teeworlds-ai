@@ -153,8 +153,7 @@ int CONTROLS::snapinput(int *data)
 		if(!ai) {
 			dbg_msg("ia", "Initializing AI");
 			_ooc_ai_load();
-			//ai = NddAI_new();
-			ai = EagleAI_new();
+			ai = getAI();
 		}
 		
 		struct GameInfo info;
