@@ -22,6 +22,7 @@ struct Answer {
 
 struct GameInfo {
 	float time;
+	int localCid;
 	struct Vector2 pos, target, mouse;
 	
 	int numChars;

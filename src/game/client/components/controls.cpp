@@ -160,6 +160,8 @@ int CONTROLS::snapinput(int *data)
 		struct GameInfo info;
 		info.time = client_localtime();
 		
+		info.localCid = gameclient.snap.local_cid;
+		
 		info.pos.x = gameclient.local_character_pos.x;
 		info.pos.y = gameclient.local_character_pos.y;
 		
@@ -185,7 +187,7 @@ int CONTROLS::snapinput(int *data)
 			input_data.direction = 1;
 			
 		if(action & Actions_FIRE)
-			input_data.fire = 1;
+			input_data.fire = -1;
 			
 		if(answer.target) {
 			input_data.target_x = answer.target->x;

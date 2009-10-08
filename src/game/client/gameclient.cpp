@@ -784,8 +784,12 @@ void GAMECLIENT::on_predict()
 				
 				for(int c = 0; c < MAX_CLIENTS; c++)
 				{
-					if(!world.characters[c])
+					if(!world.characters[c]) {
+						chars[c].x = 0;
+						chars[c].y = 0;
 						continue;
+					}
+						
 					vec2 pos = world.characters[c]->pos;
 					chars[c].x = pos.x;
 					chars[c].y = pos.y;
