@@ -5,7 +5,7 @@ NddAI: class extends AI {
 	JUMP_THRESHOLD := static 3
 	MAX_BUMP := static 20
 	AIM_THRESHOLD := static 200
-	SHOOT_THRESHOLD := static 50
+	SHOOT_THRESHOLD := static 120
 	
 	bumpCount := 0
 	left := true

@@ -186,7 +186,7 @@ int CONTROLS::snapinput(int *data)
 			input_data.direction = 1;
 			
 		if(action & Actions_FIRE)
-			input_data.fire = -1;
+			input_data.fire++;
 			
 		if(answer.target) {
 			input_data.target_x = answer.target->x;
