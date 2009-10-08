@@ -4,6 +4,9 @@ NddAI: class extends AI {
 	
 	JUMP_THRESHOLD := static 3
 	MAX_BUMP := static 20
+	AIM_THRESHOLD := static 200
+	SHOOT_THRESHOLD := static 50
+	
 	bumpCount := 0
 	left := true
 	
@@ -17,8 +20,10 @@ NddAI: class extends AI {
 			info time, info pos x, info pos y, lastx, lasty, bumpCount, nextJump, hookCount)
 			
 		tryJump := false
-			
-		mouse(-20, -60)
+		
+		if(hookCount > 0) {
+			mouse(-20, -60)
+		}
 			
 		for(i in 0..info numChars) {
 			pos := info chars[i]
@@ -28,11 +33,19 @@ NddAI: class extends AI {
 				left = (pos x < info pos x)
 				tryJump = (pos y < info pos y)
 			}
-			if(i != 0 && ((pos x - info pos x) abs() < 200) && ((pos y - info pos y) abs() < 200)) {
+			diffx := (pos x - info pos x) abs()
+			diffy := (pos y - info pos y) abs()
+			dist := sqrt(diffx * diffx + diffy * diffy)
+			
+			if((dist > 2 && dist < AIM_THRESHOLD)) {
 				vec := pos - info pos
 				mouse(vec x, vec y)
-				dbg_msg("ia", "Firing at (%.0f, %.0f)!!", vec x, vec y)
+				dbg_msg("ia", "Aiming at (%.0f, %.0f)!!", vec x, vec y)
+			}
+			
+			if((dist > 2 && dist < SHOOT_THRESHOLD)) {
 				fire()
+				dbg_msg("ia", "Firing!!")
 			}
 		}
 		

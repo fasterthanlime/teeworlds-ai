@@ -2,8 +2,6 @@ include stdint
 use math
 
 dbg_msg: extern proto func (module, fmt: String, ...)
-srand: extern func(Int)
-rand: extern func -> Int
 
 Answer: cover {
 	action: Action
