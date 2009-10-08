@@ -184,7 +184,17 @@ int CONTROLS::snapinput(int *data)
 			input_data.direction = 1;
 			
 		if(action & Actions_FIRE)
-			input_data.fire = true;
+			input_data.fire = 1;
+			
+		if(answer.target) {
+			input_data.target_x = answer.target->x;
+			input_data.target_y = answer.target->y;
+		}
+		
+		if(answer.mouse) {
+			mouse_pos.x = answer.mouse->x;
+			mouse_pos.y = answer.mouse->y;
+		}
 			
 		input_data.hook = (action & Actions_HOOK);
 		

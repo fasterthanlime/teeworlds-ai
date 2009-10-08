@@ -25,6 +25,20 @@ Vector2: cover {
 	x, y: Float
 }
 
+operator - (v1, v2: Vector2) -> Vector2 {
+	v : Vector2
+	v x = v1 x - v2 x
+	v y = v1 y - v2 y
+	return v
+}
+
+operator * (v: Vector2, f: Float) -> Vector2 {
+	vout : Vector2
+	vout x = v x * f
+	vout y = v y * f
+	return vout
+}
+
 GameInfo: cover {
 	time: Float
 	pos, target, mouse: Vector2
@@ -79,39 +93,16 @@ AI: abstract class {
 	hook:  func { answer action |= Actions HOOK  }
 	hook:  func ~count (time: Int) { hookCount = time }
 	
-}
-
-BlobbyAI: class extends AI {
-	
-	step: func (localTime: Float, posx, posy: Float) -> Action {
-		
-		action = 0 : Action
-		
-		if(rand() % 50 == 10){
-			mouse_pos.x = cos(rand() % 100) * 100 + 50;
-			mouse_pos.y = sin(rand() % 100) * 100 + 50;
-		}
-		
-		if(rand() % 30 == 10){
-			action |= JUMP
-		}
-		
-		if(rand() % 40 == 10){
-			action |= FIRE
-		}
-		
-		//dbg_msg("ai","diff: %f",target_pos.x - char_posx);
-		if(target_pos.x - posx > 0){
-			input_data.direction = 1;
-		}
-		else if(abs(target_pos.x - posx) < 15){
-			input_data.direction = 0;
-		}
-		else{
-			input_data.direction = -1;
-		}
-	
-		return action
-		
+	target: func (x, y: Float) {
+		answer target = gc_malloc(Vector2 size)
+		answer target@ x = x
+		answer target@ y = y
 	}
+	
+	mouse: func (x, y: Float) {
+		answer mouse = gc_malloc(Vector2 size)
+		answer mouse@ x = x
+		answer mouse@ y = y
+	}
+	
 }
