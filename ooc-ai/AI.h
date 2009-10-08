@@ -31,8 +31,7 @@ struct GameInfo {
 
 void _ooc_ai_load();
 
-AI *NddAI_new();
-AI *EagleAI_new();
+AI *getAI();
 struct Answer AI_step(AI *_this, struct GameInfo info);
 
 #endif // ___AI__
