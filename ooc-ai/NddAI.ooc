@@ -140,8 +140,8 @@ NddAI: class extends AI {
 		if(bumpCount >= MAX_BUMP) {
 			bumpCount = 0
 
-			//hasWall := grid search(gridx + (left ? -8 : 8), gridy + 2, spanx, spany, Blocks WALL)
-			if(/*hasWall && */ hookCount <= 0) {
+			hasWall := grid search(gridx + (left ? -8 : 8), gridy + 2, spanx, spany, Blocks WALL)
+			if(hasWall && hookCount <= 0) {
 				off2x := left ? -5 : 5
 				for(offx: Int in (-1)..1) {
 					for(offy: Int in (2)..(5)) {
