@@ -80,3 +80,38 @@ AI: abstract class {
 	hook:  func ~count (time: Int) { hookCount = time }
 	
 }
+
+BlobbyAI: class extends AI {
+	
+	step: func (localTime: Float, posx, posy: Float) -> Action {
+		
+		action = 0 : Action
+		
+		if(rand() % 50 == 10){
+			mouse_pos.x = cos(rand() % 100) * 100 + 50;
+			mouse_pos.y = sin(rand() % 100) * 100 + 50;
+		}
+		
+		if(rand() % 30 == 10){
+			action |= JUMP
+		}
+		
+		if(rand() % 40 == 10){
+			action |= FIRE
+		}
+		
+		//dbg_msg("ai","diff: %f",target_pos.x - char_posx);
+		if(target_pos.x - posx > 0){
+			input_data.direction = 1;
+		}
+		else if(abs(target_pos.x - posx) < 15){
+			input_data.direction = 0;
+		}
+		else{
+			input_data.direction = -1;
+		}
+	
+		return action
+		
+	}
+}
