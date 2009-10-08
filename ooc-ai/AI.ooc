@@ -21,6 +21,8 @@ Actions: class {
 
 Vector2: cover {
 	x, y: Float
+	
+	isZero: func -> Bool { x == 0.0 && y == 0.0 }
 }
 
 operator - (v1, v2: Vector2) -> Vector2 {
@@ -39,6 +41,7 @@ operator * (v: Vector2, f: Float) -> Vector2 {
 
 GameInfo: cover {
 	time: Float
+	localCid: Int
 	pos, target, mouse: Vector2
 	
 	numChars: Int
