@@ -10,6 +10,9 @@ You need 'bam' to build teeworlds, and GNU make, to launch the Makefile.
 'bam' is a build tool that's been created for teeworlds. You can download
 and compile it here: http://teeworlds.com/trac/bam/
 
+NOTE: The 'bam' produced executable is actually in bam-0.x.x/src/
+Yeah, that seems incredibly dumb, but that's true =)
+
 Then, type "make" to build Teeworlds and the AIs, or "make test" to do the same + launch the client.
 the "./teeworlds_d" produced executable is a regular client, so just connect to your
 favorite server (bots aren't welcome outside LAN servers, as far as I know, on Internet you'll be banned.)

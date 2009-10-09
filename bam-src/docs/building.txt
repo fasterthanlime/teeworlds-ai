@@ -1,0 +1,57 @@
+@GROUP Unix-like Systems with GCC (Linux, *BSD, Mac OS X) @END
+
+Building Bam is easy and have very few dependencies. Make sure
+that you have GCC and pthreads installed and run this command:
+
+{{{{sh make_unix.sh}}}}
+
+This will build bam with optimizations turned on. If you want a
+debug version of bam, you can invoke the script like this:
+
+{{{{sh make_unix.sh -O0 -g}}}}
+
+That will turn off the optimizations and include debug
+information in the build.
+
+@GROUP Windows @END
+
+To build on windows you need to have either Microsoft Visual C++ or
+MinGW.
+
+To build with Visual C++, just run press Start, Run and enter
+cmd.exe and press enter. Then navigate to the Bam directory and type this:
+
+{{{{make_win32_msvc.bat}}}}
+
+The batch file will automaticly detect the Visual C++ version and setup
+the compile environment and then build an optimized version of Bam. You
+should find the exe in the base directory of Bam.
+
+To build with MinGW, make sure that you have a correct build
+environment setup in a console and then run this:
+
+{{{{make_win32_mingw.bat}}}}
+
+An optimized version of Bam will be built and the exe can be located in
+the base directory of Bam.
+
+@GROUP BeOS and Haiku @END
+
+Building Bam works the same way as on Unix-like systems but
+the script is called make_beos.sh instead. You can build Bam
+by running:
+
+{{{{sh make_beos.sh}}}}
+
+@GROUP Running the Test Suite @END
+
+Bam comes with a test suite to verify that Bam is working like
+it should. The suite requires <a href="http://www.python.com">Python</a>
+to be installed. This test suite is used during the development
+of Bam to verify that nothing breaks between releases. You
+can run the test suite by typing this:
+
+{{{{python scripts/test.py}}}}
+
+It will either print out that all tests where successfull or
+what tests it didn't pass.

@@ -1,0 +1,955 @@
+-- just install a better name for the functions and tables
+ScriptArgs = _bam_scriptargs
+Execute = os.execute
+
+--[[@GROUP Common @END]]--
+
+--[[@UNITTESTS
+	err=1; find="expected a settings object": CheckSettings(nil)
+	err=1; find="expected a settings object": CheckSettings("")
+	err=1; find="expected a settings object": CheckSettings({})
+	err=0 : CheckSettings(NewSettings())
+@END]]--
+function CheckSettings(settings)
+	if type(settings) ~= type({}) or settings._is_settingsobject == nil then
+		error("expected a settings object, got an " .. type(settings) .. " instead")
+	end
+end
+
+--[[@FUNCTION
+	Tells bam what version this script is written for. It will either
+	make sure that it behaves like that version or print out an error.
+	
+	{{{{
+	CheckVersion("0.1.0")
+	}}}}
+@END]]--
+function CheckVersion(version)
+	if version == _bam_version then
+	else
+		error("this file for version "..version..".x of bam. you are running ".._bam_version..".x.")
+	end
+end
+
+--[[@FUNCTION
+	Flatterns a tree of tables
+@END]]--
+function FlatternTable(varargtable)
+	function flattern(collection, varargtable)
+		for i,v in ipairs(varargtable) do
+			if type(v) == type({}) then
+				flattern(collection, v)
+			elseif type(v) == type("") then
+				table.insert(collection, v)
+			end		
+		end
+	end
+
+	local inputs = {}
+	flattern(inputs, varargtable)
+	return inputs
+end
+
+--[[@GROUP Path Manipulation @END]]--
+
+--[[@UNITTESTS
+	err=1 : Path(nil)
+	err=1 : Path({})
+	catch="" : Path("")
+	catch="" : Path("/")
+	catch="/b.c/file.ext" : Path("/a/../b.c/./file.ext")
+	catch="/b.c" : Path("/a/../b.c/./")
+@END]]--
+--[[@FUNCTION Path(str)
+	Normalizes the path in ^str^ by removing ".." and "." from it
+
+	{{{{
+	Path("test/./path/../file.name.ext") -- Returns "test/file.name.ext"
+	}}}}
+@END]]--
+Path = bam_path_fix
+
+-- [TODO: Should be in C]
+--[[@UNITTESTS
+	err=1: PathBase(nil)
+	err=1: PathBase({})
+	catch="": PathBase("")
+	catch="/": PathBase("/")
+	catch="/a/../b.c/./file": PathBase("/a/../b.c/./file.ext")
+@END]]--
+--[[@FUNCTION
+	Returns the everthing except the extention in the path.
+
+	{{{{
+	Path("test/path/file.name.ext") -- Returns "test/path/file.name"<br/>
+	Path("test/path/file.name") -- Returns "test/path/file"<br/>
+	Path("test/path/file") -- Returns "test/path/file"
+	}}}}
+@END]]--
+function PathBase(s)
+	local e = PathFileExt(s)
+	if e == "" then
+		return s
+	end
+	
+	return string.sub(s,1,string.len(s)-string.len(PathFileExt(s))-1)
+end
+
+--[[@UNITTESTS
+	err=1 : PathFilename(nil)
+	err=1 : PathFilename({})
+	catch="" : PathFilename("")
+	catch="" : PathFilename("/")
+	catch="file.ext" : PathFilename("/a/../b.c/./file.ext")
+@END]]--
+--[[@FUNCTION PathFilename(str)
+	Returns the filename of the path in ^str^.
+
+	{{{{
+	PathFilename("test/path/file.name.ext") -- Returns "file.name.ext"
+	}}}}
+@END]]--
+PathFilename = bam_path_filename
+
+--[[@UNITTESTS
+	err=1 : PathFileExt(nil)
+	err=1 : PathFileExt({})
+	catch="" : PathFileExt("")
+	catch="" : PathFileExt("/")
+	catch="ext" : PathFileExt("/a/../b.c/./file.ext")
+@END]]--
+--[[@FUNCTION PathFileExt(str)
+	Returns the extension of the filename in ^str^.
+	
+	{{{{
+	PathFileExt("test/path/file.name.ext") -- Returns "ext"
+	}}}}
+@END]]--
+PathFileExt = bam_path_ext
+
+--[[@UNITTESTS
+	err=1 : PathPath(nil)
+	err=1 : PathPath({})
+	catch="" : PathPath("")
+	catch="" : PathPath("/")
+	catch="/b.c" : PathPath("/a/../b.c/./file.ext")
+@END]]--
+--[[@FUNCTION PathPath(str)
+	Returns the path of the filename in ^str^.
+
+	{{{{
+	PathPath("test/path/file.name.ext") -- Returns "test/path"
+	}}}}
+@END]]--
+PathPath = bam_path_path
+
+-- [TODO: Improve]
+-- [TODO: Should be in C]
+--[[@FUNCTION
+	TODO
+@END]]--
+function PathRelative(base, str)
+	local l = string.len(base)
+	if string.sub(s, 0, l) == base then
+		return string.sub(s, l+2)
+	end
+	return s
+end
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function PathScriptRelative(s)
+	return PathRelative(_bam_path, s)
+end
+
+-- [TODO: Should be in C?]
+function str_replace(s, pattern, what)
+	return string.gsub(s, pattern, function(v) return what end)
+end
+
+
+-- make a table into a string
+-- [TODO: Should be in C?]
+-- [TODO: Should be removed?]
+function tbl_to_str(tbl, prefix, postfix)
+	local s = ""
+	for index,value in ipairs(tbl) do
+		if type(value) == type("") then
+			s = s .. prefix .. value .. postfix
+		end
+	end
+	return s
+end
+
+function NewTable()
+	local t = {}
+
+	t.Add = function(self, ...)
+		for i,what in ipairs({...}) do
+			table.insert(self, what)
+		end
+	end
+
+	t.Merge = function(self, source)
+		for k,v in ipairs(source) do
+			table.insert(self, v)
+		end
+	end
+
+	return t
+end
+
+function NewFlagTable()
+	local t = NewTable()
+
+	t.ToString = function(self)
+		local s = ""
+		for key,value in pairs(self) do
+			if type(value) == type("") then
+				s = s .. value .. " "
+			end
+		end
+		return s
+	end
+
+	return t
+end
+
+function NewPathTable()
+	local t = NewTable()
+	return t
+end
+
+function NewAntiPathTable()
+	local t = NewTable()
+	return t
+end
+
+-- copied from the lua-users mailing-list and modified abit 
+function table.copy(self, ud_copy_fn)
+    ud_copy_fn = ud_copy_fn or function ( ud ) return ud end
+    
+    local new_table = {}
+    for key, value in pairs(self) do
+        local new_key
+        if(type(key) == 'table') then
+            new_key = table.copy(key, ud_copy_fn)
+        elseif (type(key) == 'userdata') then
+            new_key = ud_copy_fn(key)
+        else
+            new_key = key
+        end
+
+        local new_value
+        if(type( value ) == 'table' ) then
+            new_value = table.copy(value, ud_copy_fn)
+        elseif(type(value) == 'userdata') then
+            new_value = ud_copy_fn(value)
+        else
+            new_value = value
+        end
+
+        new_table[new_key] = new_value
+    end
+
+     return new_table
+end
+
+function table.lock(t)
+	local mt = getmetatable(t)
+	if not mt then mt = {} end
+	mt.__newindex = function(t, key, value)
+		error("trying to create key '" .. key .. "' on a locked table")
+	end
+	setmetatable(t,mt)
+end
+
+--[[@GROUP Settings @END]]--
+
+_bam_tools = {}
+
+function AddTool(name, func)
+	_bam_tools[name] = func
+end
+
+function NewSettings()
+	local settings = {}
+	
+	settings._is_settingsobject = true
+	settings.Copy = table.copy
+	
+	settings.filemappings = {}
+
+	settings.config_name = ""
+	settings.config_ext = ""
+	settings.debug = 1
+	settings.optimize = 0
+	
+	-- add all tools
+	for name, tool in pairs(_bam_tools) do
+		tool(settings)
+	end
+
+	table.lock(settings)
+	
+	-- set default drivers
+	if family == "windows" then
+		SetDriversCL(settings)
+	else
+		SetDriversGCC(settings)
+	end
+	
+	return settings
+end
+
+
+--[[@GROUP Files and Directories@END]]--
+
+-- Collects files in a directory.
+--[[@FUNCTION Collect(...)
+	Gathers a set of files using wildcard. Accepts strings and tables
+	of strings as input and returns a table of all the files that
+	matches A single wildcard * may be used in each string to collect
+	a set of files.
+	
+	Example:
+	{{{{
+		source_files = Collect('src/*.c", "lib/*.c")
+	}}}}
+	
+	Note. This version collects files, non-recursive.
+@END]]--
+Collect = bam_collect
+
+--[[@FUNCTION CollectRecursive(...)
+	Collects files as the [Collect] but does so recursivly.
+@END]]--
+CollectRecursive = bam_collectrecursive
+
+--[[@FUNCTION CollectDirs(...)
+	Collects directories in the same fashion as [Collect] but returns
+	directories instead.
+@END]]--
+CollectDirs = bam_collectdirs
+
+--[[@FUNCTION CollectDirsRecursive(...)
+	Collects directories in the same fashion as [Collect] but does so
+	recursivly and returns directories instead.
+@END]]--
+CollectDirsRecursive = bam_collectdirsrecursive
+
+--[[@GROUP Actions@END]]--
+
+-- Copy -
+--[[@FUNCTION
+	TODO
+@END]]--
+function Copy(outputdir, ...)
+	local inputs = FlatternTable({...})
+	local outputs = {}
+	
+	-- compile all the files
+	for index, inname in ipairs(inputs) do
+		output = Path(outputdir .. "/" .. PathFilename(inname))
+		input = Path(inname)
+
+		local copy_command = "cp"
+		local srcfile = input
+		local dstfile = output
+		if family == "windows" then
+			copy_command = "copy"
+			srcfile = str_replace(srcfile, "/", "\\")
+			dstfile = str_replace(dstfile, "/", "\\")
+		end
+
+		AddJob(output,
+			"copy " .. input .. " -> " .. output,
+			copy_command .. " " .. input .. " " .. output)
+
+		AddDependency(output, input)
+		table.insert(outputs, output)
+	end
+	
+	return outputs
+end
+
+--[[@GROUP Targets@END]]--
+
+--[[@FUNCTION Target(filename) (Redundent?)
+	Specifies ^filename^ as a target. This target will be include when
+	specifying the ^all^ target.
+@END]]--
+Target = bam_add_target
+
+--[[@FUNCTION DefaultTarget(filename)
+	Specifies the default target use build when no targets are
+	specified when bam is invoked.
+@END]]--
+DefaultTarget = bam_default_target
+
+--[[@FUNCTION
+	TODO	
+@END]]--
+function PseudoTarget(name, ...)
+	local inputs = FlatternTable({...})
+	local name = Path(name)
+	AddJob(name, "", "")
+
+	-- all the files
+	for index, inname in ipairs(inputs) do
+		AddDependency(name, inname)
+	end
+
+	return name
+end
+
+--[[@GROUP Configuration@END]]--
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function NewConfig()
+	local config = {}
+	config.options = {}
+	config.settings = NewSettings()
+
+	config.Add = function(self, o)
+		table.insert(self.options, o)
+		self[o.name] = o
+	end
+	
+	config.Print = function(self)
+		print("--- CONFIGURATION ---")
+		for k,v in pairs(self.options) do
+			print(v.name..": "..v:display())
+		end
+		print("--- --- ---")
+	end
+	
+	config.Save = function(self, filename)
+		print("saving configuration to '"..filename.."'")
+		local file = io.open(filename, "w")
+		
+		-- Define a little helper function to save options
+		local saver = {}
+		saver.file = file
+		
+		saver.line = function(self, str)
+			self.file:write(str .. "\n")
+		end
+		
+		saver.option = function(self, option, name)
+			local valuestr = "nil"
+			if type(option[name]) == type(0) then
+				valuestr = option[name]
+			elseif type(option[name]) == type("") then
+				valuestr = "'"..option[name].."'"
+			elseif type(option[name]) == type(nil) then
+				valuestr = "nil"
+			else
+				error("don't know how to save a value with the type of ".. type(option[name]))
+			end
+			self.file:write(option.name.."."..name.." = ".. valuestr.."\n")
+		end
+
+		-- Save all the options		
+		for k,v in pairs(self.options) do
+			v:Save(saver)
+		end
+		file:close()
+	end
+	
+	config.Load = function(self, filename)
+		local options_func = loadfile(filename)
+		local options_table = {}
+		
+		if options_func == nil then
+			return false
+		end
+
+		-- Setup the options tables
+		for k,v in pairs(self.options) do
+			options_table[v.name] = {}
+		end
+		setfenv(options_func, options_table)
+		
+		-- this is to make sure that we get nice error messages when
+		-- someone sets an option that isn't valid.
+		local mt = {}
+		mt.__index = function(t, key)
+			local v = rawget(t, key)
+			if v ~= nil then return v end
+			error("there is no configuration option named '" .. key .. "'")
+		end
+		setmetatable(options_table, mt)		
+		
+		-- Process the options
+		options_func()
+		
+		-- Copy the optionss
+		for k,v in pairs(self.options) do
+			if options_table[v.name] then
+				for k2,v2 in pairs(options_table[v.name]) do
+					v[k2] = v2
+				end
+			end
+		end
+		
+		--if options_table['compiler'] then
+		--	setup_compiler(self.compiler.value)
+		--end
+
+		return true
+	end
+
+	config.Autodetect = function(self)
+		for k,v in pairs(self.options) do
+			v:Check(self.settings)
+			print(v.name..": "..v:Display())
+			self[v.name] = v
+		end
+	end
+	
+	config.Finalize = function(self, filename)
+		if _bam_targets[0] == "config" then
+			self:Autodetect()
+			self:Save(filename)
+			os.exit(0)
+		end
+	
+		if not self:Load(filename) then
+			print("--- Auto Configuration ---")
+			self:Autodetect()
+			self:Save(filename)
+			print("--- ")
+		end
+		
+		bam_update_globalstamp(filename)
+	end
+	
+	return config
+end
+
+--- SilentExecute
+function _execute_silent_win(command) return os.execute(command .. " >nul 2>&1") end
+function _execute_silent_unix(command) return os.execute(command .. " >/dev/null 2>/dev/null") end
+
+--[[@FUNCTION ExecuteSilent(command)
+	TODO
+@END]]--
+
+if family == "windows" then
+	ExecuteSilent = _execute_silent_win
+else
+	ExecuteSilent = _execute_silent_unix
+end
+
+-- Helper functions --------------------------------------
+function DefaultOptionDisplay(option)
+	if not option.value then return "no" end
+	if option.value == 1 then return "yes" end
+	return option.value
+end
+
+function MakeOption(name, value, check, save, display)
+	local o = {}
+	o.name = name
+	o.value = value
+	o.Check = check
+	o.Save = save
+	
+	o.Display = display
+	if o.Display == nil then o.Display = DefaultOptionDisplay end
+	return o
+end
+
+
+-- Test Compile C --------------------------------------
+function OptTestCompileC(name, source)
+	local check = function(option, settings)
+		option.value = nil
+		if CTestCompile(settings, "int main(){return 0;}", "-fstack-protector -fstack-protector-all") then
+			option.value = 1
+		end
+	end
+	
+	local save = function(option, output)
+		output:option(option, "value")
+	end
+	
+	local o = MakeOption(name, 0, check, save)
+	o.source = source
+	return o
+end
+
+-- Find Compiler --------------------------------------
+--[[@FUNCTION
+	TODO
+@END]]--
+function OptFindCompiler()
+	local check = function(option, settings)
+		if ExecuteSilent("g++ -v") == 0 then
+			option.value = "gcc"
+		elseif ExecuteSilent("cl") == 0 then
+			option.value = "cl"
+		else
+			error("no c/c++ compiler found")
+		end
+		
+		--setup_compiler(option.value)
+	end
+	
+	local save = function(option, output)
+		output:option(option, "value")
+	end
+	
+	return MakeOption("compiler", "none", check, save)
+end
+
+-- Find Library --------------------------------------
+--[[@FUNCTION
+	TODO
+@END]]--
+function OptFindLibrary(name, header, library, required)
+	local check = function(option, settings)
+		option.value = nil
+		
+		local function check_compile_include(filename, paths)
+			if CTestCompile(settings, "#include <" .. filename .. ">\nint main(){return 0;}", "") then
+				return ""
+			end
+
+			for k,v in pairs(paths) do
+				if CTestCompile(settings, "#include <" .. filename .. ">\nint main(){return 0;}", "-I"..v) then
+					return v
+				end
+			end
+			
+			return nil
+		end
+		
+		option.include_path = check_compile_include(option.header, {})
+		if option.include_path == nil then
+			if option.required then
+				print(name.." library not found and is required")
+				error("required library not found")
+			end
+		else
+			option.value = 1
+			if option.include_path == "" then
+				option.include_path = nil
+			end
+		end
+	end
+	
+	local save = function(option, output)
+		output:option(option, "value")
+		output:option(option, "include_path")
+	end
+	
+	local display = function(option)
+		if option.value then
+			if option.include_path then
+				return option.include_path
+			else
+				return "(in system path)"
+			end
+		else
+			if option.required then
+				return "not found (required)"
+			else
+				return "not found (optional)"
+			end
+		end
+	end
+	
+	local o = MakeOption(name, 0, check, save, display)
+	o.include_path = nil
+	o.header = header
+	o.required = required
+	return o
+end
+
+---
+
+--[[@GROUP Modules@END]]--
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function Import(modname)
+	local paths = {""}
+	local chunk = nil
+
+	s = os.getenv("BAM_PACKAGES")
+	if s then
+		for w in string.gmatch(s, "[^:]*") do
+			if string.len(w) > 0 then
+				table.insert(paths, w)
+			end
+		end
+	end
+	
+	for k,v in pairs(paths) do
+		chunk = loadfile(modname)
+		if chunk then
+			local current = _bam_modulefilename
+			_bam_modulefilename = modname
+			chunk()
+			_bam_modulefilename = current
+			return
+		end
+	end
+
+	error(modname .. " not found")
+end
+
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function ModuleFilename()
+	return _bam_modulefilename
+end
+
+
+--[[@GROUP Job and Dependencies @END]]--
+
+--[[@FUNCTION AddJob(output, label, command)
+	Adds a job to be done. The ^output^ string specifies the file that
+	will be created by the command line specified in ^command^ string.
+	The ^label^ is printed out before ^command^ is runned.
+@END]]--
+AddJob = bam_add_job
+
+--[[@FUNCTION AddDependency(filename, depfilename)
+	Specifies a dependency of a file. The file specified in the
+	^depfilename^ is a dependency of ^filename^.
+@END]]--
+AddDependency = bam_add_dependency
+
+
+function Default_Intermediate_Output(settings, input)
+	return PathBase(input) .. settings.config_ext
+end
+
+function DriverNull()
+	error("no driver set")
+end
+
+------------------------ C/C++ COMPILE ------------------------
+
+function InitCommonCCompiler(settings)
+	settings.cc = {}
+	settings.cc.extension = ""
+	settings.cc.path = ""
+	settings.cc.c_compiler = ""
+	settings.cc.cxx_compiler = ""
+	settings.cc.DriverCTest = DriverNull
+	settings.cc.DriverC = DriverNull
+	settings.cc.DriverCXX = DriverNull
+	settings.cc.flags = NewFlagTable()
+	settings.cc.includes = NewPathTable()
+	settings.cc.systemincludes = NewTable()
+	settings.cc.defines = NewTable()
+	settings.cc.frameworks = NewTable()
+	settings.cc.Output = Default_Intermediate_Output
+	settings.cc.optimize = 0
+	
+	table.lock(settings.cc)
+end
+
+function CCompiler(settings, input)
+	local outname = settings.cc.Output(settings, input) .. settings.cc.extension
+	AddJob(
+		outname,
+		"c " .. input,
+		settings.cc.DriverC(outname, input, settings)
+	)	
+	AddDependency(outname, input)
+	bam_dependency_cpp(input, settings.cc.includes)
+	return outname
+end
+
+function CXXCompiler(settings, input)
+	local outname = settings.cc.Output(settings, input) .. settings.cc.extension
+	AddJob(
+		outname,
+		"c++ " .. input,
+		settings.cc.DriverCXX(outname, input, settings)
+	)	
+	AddDependency(outname, input)
+	bam_dependency_cpp(input, settings.cc.includes)	
+	return outname
+end
+
+
+AddTool("c", function (settings)
+	InitCommonCCompiler(settings)
+	settings.filemappings["c"] = CCompiler
+	settings.filemappings["m"] = CCompiler
+end)
+
+AddTool("cxx", function (settings)
+	InitCommonCCompiler(settings)
+	settings.filemappings["cpp"] = CXXCompiler
+	settings.filemappings["cxx"] = CXXCompiler
+	settings.filemappings["c++"] = CXXCompiler
+	settings.filemappings["cc"] = CXXCompiler
+end)
+
+------------------------ COMPILE ACTION ------------------------
+
+-- Compiles C, Obj-C and C++ files
+--[[@UNITTESTS
+	err=1; find="expected a settings object": Compile(nil)
+	err=1; find="compiler returned a nil": s = NewSettings(); s.filemappings["c"] = function()end; Compile(s, "test.c")
+	err=0 : s = NewSettings(); Compile(s)
+@END]]--
+--[[@FUNCTION
+	TODO
+@END]]--
+function Compile(settings, ...)
+	CheckSettings(settings)
+	
+	local inputs = FlatternTable({...})
+	local outputs = {}
+	
+	-- compile all the files
+	for index, inname in ipairs(inputs) do
+
+		-- fetch correct compiler
+		local ext = PathFileExt(inname)
+		local Compiler = settings.filemappings[ext]
+
+		if not Compiler then
+			error("'"..inname.."' has unknown extention '"..ext.."' which there are no compiler for")
+		end
+		
+		local objectfile = Compiler(settings, inname)
+		if type(objectfile) ~= type("") then
+			error("compiler returned a "..type(objectfile).." instead of a string")
+		end
+		table.insert(outputs, objectfile)
+	end
+
+	-- return the output
+	return outputs	
+end
+
+function CTestCompile(settings, code, options)
+	return settings.cc.DriverCTest(code, options)
+end
+
+------------------------ LINK ------------------------
+
+AddTool("link", function (settings)
+	settings.link = {}
+	settings.link.Driver = DriverNull
+	settings.link.path = ""
+	settings.link.extension = ""
+	settings.link.linker = "g++"
+	settings.link.inputflags = ""
+	settings.link.flags = NewFlagTable()
+	settings.link.libs = NewTable()
+	settings.link.frameworks = NewTable()
+	settings.link.frameworkpath = NewPathTable()
+	settings.link.libpath = NewPathTable()
+	settings.link.extrafiles = NewPathTable()
+	
+	table.lock(settings.link)
+end)
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function Link(settings, output, ...)
+	CheckSettings(settings)
+	
+	local inputs = FlatternTable({...})
+
+	output = output .. settings.config_ext .. settings.link.extension
+
+	AddJob(output, "link " .. output, settings.link.Driver(output, inputs, settings))
+
+	-- all the files
+	for index, inname in ipairs(inputs) do
+		AddDependency(output, inname)
+	end
+	
+	for index, inname in ipairs(settings.link.extrafiles) do
+		AddDependency(output, inname)
+	end
+
+	return output
+end
+
+------------------------ STATIC LIBRARY ACTION ------------------------
+
+AddTool("lib", function (settings)
+	settings.lib = {}
+	settings.lib.Driver = DriverNull
+	settings.lib.extension = ""
+	settings.lib.path = ""
+	settings.lib.flags = NewFlagTable()
+	
+	table.lock(settings.lib)
+end)
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function StaticLibrary(settings, output, ...)
+	CheckSettings(settings)
+	
+	local inputs = FlatternTable({...})
+
+	output = output .. settings.config_ext .. settings.lib.extension
+
+	AddJob(output, "link " .. output, settings.lib.Driver(output, inputs, settings))
+
+	for index, inname in ipairs(inputs) do
+		AddDependency(output, inname)
+	end
+
+	return output
+end
+
+------------------------ SHARED LIBRARY ACTION ------------------------
+
+AddTool("dll", function (settings)
+	settings.dll = {}
+	settings.dll.Driver = DriverNull
+	settings.dll.extension = ""
+	settings.dll.path = ""
+	settings.dll.linker = "g++"
+	settings.dll.inputflags = ""
+	settings.dll.flags = NewFlagTable()
+	settings.dll.libs = NewTable()
+	settings.dll.frameworks = NewTable()
+	settings.dll.frameworkpath = NewPathTable()
+	settings.dll.libpath = NewPathTable()
+	settings.dll.extrafiles = NewPathTable()
+
+	table.lock(settings.dll)
+end)
+
+--[[@FUNCTION
+	TODO
+@END]]--
+function SharedLibrary(settings, output, ...)
+	CheckSettings(settings)
+	
+	local inputs = FlatternTable({...})
+
+	output = output .. settings.config_ext .. settings.dll.extension
+	AddJob(output, "dll ".. output, settings.dll.Driver(output, inputs, settings))
+
+	for index, inname in ipairs(inputs) do
+		AddDependency(output, inname)
+	end
+
+	return output
+end
+
