@@ -1,0 +1,32 @@
+A few AIs for Teeworlds.
+
+How to use
+==========
+
+It's just a few hooks added in controls.cpp, so you have to use a modified client.
+These sources are from their 0.5.1 release.
+
+You need 'bam' to build teeworlds, and GNU make, to launch the Makefile.
+'bam' is a build tool that's been created for teeworlds. You can download
+and compile it here: http://teeworlds.com/trac/bam/
+
+Then, type "make" to build Teeworlds and the AIs, or "make test" to do the same + launch the client.
+the "./teeworlds_d" produced executable is a regular client, so just connect to your
+favorite server (bots aren't welcome outside LAN servers, as far as I know, on Internet you'll be banned.)
+
+
+Adding your AI
+==============
+
+Add a XXXXAI.ooc file in ooc-ai/, and add it an XXXXAI: class extends AI
+Just take example on NddAI.ooc, or look at the methods in AI.ooc
+
+Then in ooc-ai/ooc-ai.ooc, change the getAI() method to instanciate your
+AI instead. (And don't forget to import it, you silly)
+
+Final words
+===========
+
+Have fun! Don't be evil =) Bots-vs-bots fights are fun, don't be silly
+and don't use them against (innocent) humans. If you do so, you only show
+that you don't know how to play yourself ;)
