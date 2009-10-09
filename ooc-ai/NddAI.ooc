@@ -2,12 +2,12 @@ import AI, Grid, Vector2
 
 NddAI: class extends AI {
 	
-	ZOOM := static 10 as Float
+	ZOOM := static 15 as Float
 	
 	JUMP_THRESHOLD := static 4
 	MAX_BUMP := static 10
-	AIM_THRESHOLD := static 200
-	SHOOT_THRESHOLD := static 120
+	AIM_THRESHOLD := static 180
+	SHOOT_THRESHOLD := static 100
 	
 	bumpCount := 0
 	left := true
@@ -24,7 +24,7 @@ NddAI: class extends AI {
 	stepImpl: func (info: GameInfo@) {
 		
 		if(!grid) {
-			grid = Grid new(220, 150)
+			grid = Grid new(300, 200)
 			//dbg_msg("ia", "Created a %dx%d grid.", grid width, grid height)
 		}
 		
@@ -35,61 +35,12 @@ NddAI: class extends AI {
 		//tryJump := false
 		//tryJump := true
 		
-		//if(hookCount > 0) {
-			//mouse(-20, -60)
-		//}
-		
 		gridx := (info pos x / ZOOM) as Int
 		gridy := (info pos y / ZOOM) as Int
 		for(offx: Int in (-2)..3) {
 			for(offy: Int in (-2)..3) {
 				grid empty(gridx + offx, gridy + offy)
 			}
-		}
-			
-		bestDist := 99999.0
-		bestMatch := -1	
-		
-		for(i in 0..info numChars) {
-			
-			if(i == info localCid) continue // that's us
-			
-			pos := info chars[i]
-			if(pos isZero()) continue // non-existent player!
-			//dbg_msg("ai", "[ooc] client %d: %f,%f", i, pos x, pos y);
-			
-			diffx := (pos x - info pos x) abs()
-			diffy := (pos y - info pos y) abs()
-			
-			dist := sqrt(diffx * diffx + diffy * diffy)
-			if(dist < bestDist) {
-				//dbg_msg("ia", "Found better match = %d, diffx = %.2f, diffy = %.2f, dist = %.2f", i, diffx, diffy, dist)
-				bestDist = dist
-				bestMatch = i
-			}
-		}
-		
-		if(bestMatch != -1 && bestDist != 0) {
-
-			pos := info chars[bestMatch]
-			dist := bestDist
-			
-			//dbg_msg("ia", "Following bestMatch = %d, dist = %.2f", bestMatch, dist)
-			
-			left = (pos x < info pos x)
-			tryJump = (pos y < info pos y)
-			
-			if(dist < AIM_THRESHOLD) {
-				vec := pos - info pos
-				//mouse(vec x, vec y)
-				//dbg_msg("ia", "Aiming at (%.0f, %.0f) dist = %.2f!!", vec x, vec y, dist)
-			}
-			
-			if(dist < SHOOT_THRESHOLD) {
-				fire()
-				//dbg_msg("ia", "Firing!!")
-			}
-			
 		}
 		
 		if((lastx - info pos x) abs() < 3.0) {
@@ -116,7 +67,7 @@ NddAI: class extends AI {
 		}
 		
 		ceilx, ceily : Int
-		ceilDist := grid searchNearest(gridx, gridy - 30, 70, 70, Blocks CEIL, ceilx&, ceily&)
+		ceilDist := grid searchNearest(gridx, gridy - 40, gridx, gridy, 40, 40, Blocks CEIL, ceilx&, ceily&)
 		if(ceilDist < 100) {
 			difffx := ceilx * ZOOM - info pos x as Int
 			difffy := ceily * ZOOM - info pos y as Int
@@ -153,6 +104,70 @@ NddAI: class extends AI {
 			left = !left
 		}
 		
+		bestDist := 99999.0
+		bestMatch := -1	
+		
+		for(i in 0..info numChars) {
+			
+			if(i == info localCid) continue // that's us
+			
+			pos := info chars[i]
+			if(pos isZero()) continue // non-existent player!
+			//dbg_msg("ai", "[ooc] client %d: %f,%f", i, pos x, pos y);
+			
+			diffx := (pos x - info pos x) abs()
+			diffy := (pos y - info pos y) abs()
+			
+			dist := sqrt(diffx * diffx + diffy * diffy)
+			if(dist < bestDist) {
+				//dbg_msg("ia", "Found better match = %d, diffx = %.2f, diffy = %.2f, dist = %.2f", i, diffx, diffy, dist)
+				bestDist = dist
+				bestMatch = i
+			}
+		}
+		
+		if(bestMatch != -1 && bestDist != 0) {
+
+			pos := info chars[bestMatch]
+			dist := bestDist
+			
+			//dbg_msg("ia", "Following bestMatch = %d, dist = %.2f", bestMatch, dist)
+			
+			diff := info pos - pos
+			halfDiff := diff * 0.5
+			
+			{
+				/*
+				blockedx, blockedy: Int
+				blocked := grid searchNearest(
+					info pos x + halfDiff x,
+					info pos y + halfDiff y,
+					info pos x,
+					info pos y,
+					3, halfDiff y abs(),
+					Blocks WALL, blockedx&, blockedy&)
+					*/
+				/*if(blocked) {
+					printf("blocked!\n")
+				} else {*/
+					tryJump = (pos y < info pos y)
+					left = (pos x < info pos x)
+					
+					if(dist < AIM_THRESHOLD) {
+						vec := pos - info pos
+						mouse(vec x, vec y)
+						//dbg_msg("ia", "Aiming at (%.0f, %.0f) dist = %.2f!!", vec x, vec y, dist)
+					}
+					
+					if(dist < SHOOT_THRESHOLD) {
+						fire()
+						//dbg_msg("ia", "Firing!!")
+					}
+				//}
+			}
+			
+		}
+		
 		if (left) left(); else right()
 		
 		printCount -= 1
@@ -161,8 +176,6 @@ NddAI: class extends AI {
 			grid print()
 		}
 	
-		//answer action print(); println()
-		
 		lastx = info pos x
 		lasty = info pos y
 		

@@ -29,6 +29,7 @@ AI: abstract class {
 	
 	mouseWish := Vector2 new(0, 0)
 	mouseReal := Vector2 new(0, 0)
+	mouseSpeed := 0.3
 
 	stepImpl: abstract func (info: GameInfo@)
 
@@ -47,7 +48,7 @@ AI: abstract class {
 		diff := mouseWish - mouseReal
 		//printf("mouseReal = (%.0f, %.0f), mouseWish = (%.0f, %.0f), diff = (%.0f, %.0f)\n",
 			//mouseReal x, mouseReal y, mouseWish x, mouseWish y, diff x, diff y)
-		diff = diff * 0.5
+		diff = diff * mouseSpeed
 		mouseReal = mouseReal + diff
 		
 		answer mouse = mouseReal&
@@ -71,6 +72,11 @@ AI: abstract class {
 	mouse: func (x, y: Float) {
 		mouseWish x = x
 		mouseWish y = y
+	}
+	
+	mouseNow: func (x, y: Float) {
+		mouseReal x = x
+		mouseReal y = y
 	}
 	
 }

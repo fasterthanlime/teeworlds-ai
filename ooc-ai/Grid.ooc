@@ -26,15 +26,16 @@ Grid: class {
 	
 	print: func {
 		
-		for(x in 0..(width + 2)) {
+		for(x in 0..(width / 2 + 2)) {
 			printf("=")
 		}
 		println()
 		
 		for(y in 0..height) {
-			if(y % 2 == 0) continue
+			if(y % 4 < 3) continue
 			printf("|")
 			for(x in 0..width) {
+				if(x % 2 == 0) continue
 				val := get(x, y)
 				printf("%s", match val {
 					case Blocks EMPTY   => " "
@@ -50,7 +51,7 @@ Grid: class {
 			println()
 		}
 		
-		for(x in 0..(width + 2)) {
+		for(x in 0..(width / 2 + 2)) {
 			printf("=")
 		}
 		println()
@@ -111,7 +112,7 @@ Grid: class {
 		return false
 	}
 	
-	searchNearest: func (gridx, gridy, spanx, spany: Int, type: Block, ceilx, ceily: Int@) -> Bool {
+	searchNearest: func (gridx, gridy, nearestx, nearesty, spanx, spany: Int, type: Block, ceilx, ceily: Int@) -> Bool {
 		MAX := 99999999
 		bestDist := MAX
 		
@@ -119,8 +120,8 @@ Grid: class {
 			for(x in (gridx - spanx)..(gridx + spanx)) {
 				val := get(x, y)
 				if(val == type) {
-					diffx := x - gridx
-					diffy := y - gridy
+					diffx := x - nearestx
+					diffy := y - nearesty
 					dist := sqrt(diffx*diffx + diffy*diffy)
 					if(dist < bestDist) {
 						bestDist = dist
