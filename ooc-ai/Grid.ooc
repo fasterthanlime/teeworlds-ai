@@ -132,7 +132,7 @@ Grid: class {
 			}
 		}
 		
-		return bestDist
+		return bestDist != MAX
 	}
 	
 }

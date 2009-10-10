@@ -2,85 +2,83 @@ import AI, Grid, Vector2
 
 NddAI: class extends AI {
 	
-	ZOOM := static 15 as Float
-	
+	// constants
+	ZOOM := static 11.0
 	JUMP_THRESHOLD := static 4
-	MAX_BUMP := static 10
-	AIM_THRESHOLD := static 180
-	SHOOT_THRESHOLD := static 100
+	BUMP_THRESHOLD := static 5
+	AIM_THRESHOLD := static 280
+	SHOOT_THRESHOLD := static 180
+
+	followCount := 0
+	follow := false
 	
-	bumpCount := 0
 	left := true
 	
 	nextJump := 0
+	bumpCount := 0
 	printCount := 0
 	
-	stableCount := 0
+	lastPos : Vector2
 	
-	grid = null : Grid
-	
-	lastx := 0.0; lasty := 0.0
+	grid := Grid new(300, 200)
 	
 	stepImpl: func (info: GameInfo@) {
 		
-		if(!grid) {
-			grid = Grid new(300, 200)
-			//dbg_msg("ia", "Created a %dx%d grid.", grid width, grid height)
-		}
-		
-		//dbg_msg("ia", "t %.2f pos (%.0f, %.0f) last (%.0f, %.0f), bumpCount %d, nextJump %d, hookCount %d",
-			//info time, info pos x, info pos y, lastx, lasty, bumpCount, nextJump, hookCount)
-			
-		tryJump := rand() % 25 == 0
-		//tryJump := false
-		//tryJump := true
-		
+		// get our grid coordinates
 		gridx := (info pos x / ZOOM) as Int
 		gridy := (info pos y / ZOOM) as Int
+		
+		// if we reached this position, it means it's empty, right?
 		for(offx: Int in (-2)..3) {
 			for(offy: Int in (-2)..3) {
 				grid empty(gridx + offx, gridy + offy)
 			}
 		}
 		
-		if((lastx - info pos x) abs() < 3.0) {
+		// 
+		if((lastPos x - info pos x) abs() < 3.0) {
 			bumpCount += 1
 		} else {
 			bumpCount = 0
 		}
 		
-		spanx := 5
-		spany := 4
-		hasDE := grid search(gridx + (left ? -8 : 8), gridy + 2, spanx, spany, Blocks DEADEND)
-		if(hasDE) {
+		// jump if there's a deadend in front of us
+		if(grid search(gridx + (left ? -8 : 8), gridy + 2, 5, 4, Blocks DEADEND)) {
 			jump()
 		}
 		
+		// detect ground
 		hasGround := grid search(gridx, gridy + 4, 2, 2, Blocks WALL)
 		if(hasGround) {
 			grid ground(gridx + (left ? -3 : 3), gridy + 3)
 		}
 		
+		// detect ceilings
 		hasCeil := grid search(gridx, gridy - 4, 2, 2, Blocks WALL)
 		if(hasCeil) {
 			grid ceil(gridx + (left ? -3 : 3), gridy - 4)
 		}
-		
+
+		// from time to time, try to hook 
 		ceilx, ceily : Int
 		ceilDist := grid searchNearest(gridx, gridy - 40, gridx, gridy, 40, 40, Blocks CEIL, ceilx&, ceily&)
 		if(ceilDist < 100) {
-			difffx := ceilx * ZOOM - info pos x as Int
-			difffy := ceily * ZOOM - info pos y as Int
-			//printf("difff = (%d, %d)\n", difffx, difffy)
-			mouse(difffx, difffy)
+			// convert grid coords to world coords
+			diffx := ceilx * ZOOM - info pos x as Int
+			diffy := ceily * ZOOM - info pos y as Int
+			mouse(diffx, diffy)
+			// if not too far, not too close, and some time since last hook
 			if(ceilDist < 90 && ceilDist > 30 && hookCount < -20) {
 				hook(15)
 			}
 		}
 
-		if(bumpCount == JUMP_THRESHOLD) {
-			//jump()
-		} else if(tryJump && nextJump <= 0) {
+		// from time to time, try to jump to explore the upper part of the map
+		// except if we're trying to determine if there's a deadend there.
+		tryJump := (bumpCount == 0 && rand() % 25 == 0)
+		
+		// if it's supposed to jump, then jump and hook!
+		if(tryJump && nextJump <= 0) {
 			srand(info time)
 			nextJump = rand() % 50 + 20
 			jump()
@@ -88,25 +86,21 @@ NddAI: class extends AI {
 		}
 		if(nextJump >= 0) nextJump -= 1
 		
-		if(bumpCount >= MAX_BUMP) {
+		// if we've reached a deadend (e.g. we've bumped for some time), mark it
+		if(bumpCount >= BUMP_THRESHOLD) {
 			bumpCount = 0
-
-			hasWall := grid search(gridx + (left ? -8 : 8), gridy + 2, spanx, spany, Blocks WALL)
+			hasWall := grid search(gridx + (left ? -8 : 8), gridy + 2, 5, 4, Blocks WALL)
 			if(hasWall && hookCount <= 0) {
-				off2x := left ? -5 : 5
-				for(offx: Int in (-1)..1) {
-					for(offy: Int in (2)..(5)) {
-						grid deadend(gridx + offx + off2x, gridy + offy)
-					}
+				for(offy: Int in (2)..(5)) {
+					grid deadend(gridx + (left ? -5 : 5), gridy + offy)
 				}
 			}
-			
+			// oh, and turn back. there's no use to keep trying.
 			left = !left
 		}
 		
 		bestDist := 99999.0
 		bestMatch := -1	
-		
 		for(i in 0..info numChars) {
 			
 			if(i == info localCid) continue // that's us
@@ -136,34 +130,23 @@ NddAI: class extends AI {
 			diff := info pos - pos
 			halfDiff := diff * 0.5
 			
-			{
-				/*
-				blockedx, blockedy: Int
-				blocked := grid searchNearest(
-					info pos x + halfDiff x,
-					info pos y + halfDiff y,
-					info pos x,
-					info pos y,
-					3, halfDiff y abs(),
-					Blocks WALL, blockedx&, blockedy&)
-					*/
-				/*if(blocked) {
-					printf("blocked!\n")
-				} else {*/
-					tryJump = (pos y < info pos y)
-					left = (pos x < info pos x)
-					
-					if(dist < AIM_THRESHOLD) {
-						vec := pos - info pos
-						mouse(vec x, vec y)
-						//dbg_msg("ia", "Aiming at (%.0f, %.0f) dist = %.2f!!", vec x, vec y, dist)
-					}
-					
-					if(dist < SHOOT_THRESHOLD) {
-						fire()
-						//dbg_msg("ia", "Firing!!")
-					}
-				//}
+			if(followCount <= 0) {
+				followCount = rand() % 60
+				follow := !follow
+			}
+			
+			if(follow) {
+				tryJump = (pos y < info pos y)
+				left = (pos x < info pos x)
+			}
+			
+			if(dist < AIM_THRESHOLD) {
+				vec := pos - info pos
+				mouseNow(vec x, vec y)
+			}
+			
+			if(dist < SHOOT_THRESHOLD) {
+				fire()
 			}
 			
 		}
@@ -172,12 +155,12 @@ NddAI: class extends AI {
 		
 		printCount -= 1
 		if(printCount <= 0) {
-			printCount = 40
+			printCount = 5
 			grid print()
 		}
-	
-		lastx = info pos x
-		lasty = info pos y
+		
+		lastPos x = info pos x
+		lastPos y = info pos y
 		
 	}
 	

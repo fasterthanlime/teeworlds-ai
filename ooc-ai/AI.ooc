@@ -77,6 +77,8 @@ AI: abstract class {
 	mouseNow: func (x, y: Float) {
 		mouseReal x = x
 		mouseReal y = y
+		mouseWish x = x
+		mouseWish y = y
 	}
 	
 }
