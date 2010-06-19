@@ -1,12 +1,38 @@
 
 #include <base/vmath.hpp>
 #include <game/gamecore.hpp>
+#include <stdint.h>
 #include "render.hpp"
 
 // ooc AI!
-extern "C" {
-	#include <AI.h>
-}
+struct Vector2 {
+    float x;
+    float y;
+};
+
+struct GameInfo {
+    float time;
+    int localCid;
+    struct Vector2 pos;
+    struct Vector2 target;
+    struct Vector2 mouse;
+    int numChars;
+    struct Vector2* chars;
+};
+
+struct Answer {
+    uint32_t action;
+    struct Vector2* target;
+    struct Vector2* mouse;
+};
+
+#define Actions_NONE  0x00
+#define Actions_JUMP  0x01
+#define Actions_LEFT  0x02
+#define Actions_RIGHT 0x04
+#define Actions_FIRE  0x08
+#define Actions_HOOK  0x10
+// end ooc AI!
 
 class GAMECLIENT
 {

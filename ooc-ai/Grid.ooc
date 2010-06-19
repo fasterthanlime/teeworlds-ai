@@ -1,4 +1,4 @@
-import Vector2, structs/Array
+import Vector2, structs/ArrayList, math
 
 Block: cover from Int
 
@@ -16,12 +16,15 @@ Blocks: class {
 Grid: class {
 	
 	width, height: Int
-	data: Array<Block>
+	data: ArrayList<Block>
 	
 	init: func(=width, =height) {
 		printf("Creating a %dx%d grid.\n", width, height)
-		data = Array<Block> new(width * height)
-		memset(data data, 0, width * height * Block size)
+		data = ArrayList<Block> new(width * height)
+        
+        for(i in 0..(width * height)) {
+            data add(Blocks WALL)
+        }
 	}
 	
 	print: func {
@@ -60,7 +63,7 @@ Grid: class {
 	
 	get: func (x, y: Int) -> Block {
 		if(x < 0 || x >= width || y < 0 || y >= height) {
-			return
+			return Blocks WALL
 		}
 		return data get(y * width + x)
 	}

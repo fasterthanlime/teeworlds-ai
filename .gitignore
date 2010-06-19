@@ -2,6 +2,8 @@ work/bam.zip
 teeworlds_d
 teeworlds_srv_d
 objs
-ooc-ai/out/
 ooc_tmp
+rock_tmp
+.libs
 *.o
+*.pyc

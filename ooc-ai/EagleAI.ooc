@@ -1,4 +1,4 @@
-import AI, Vector2
+import AI, Vector2, math/Random, math
 
 EagleAI: class extends AI {
 	
@@ -13,7 +13,7 @@ EagleAI: class extends AI {
 	
 	
 	stepImpl: func (info: GameInfo@) {
-		if(info numChars == 1 && rand() % 40 == 10){
+		if(info numChars == 1 && Random randInt(0, 40) == 10){
 			x := rand() % 100
 			mouse( cos(x)*100 , sin(x)*100)
 		}

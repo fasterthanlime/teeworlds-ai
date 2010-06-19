@@ -9,8 +9,14 @@
 
 // ooc AI!
 extern "C" {
-	#include <AI.h>
+    typedef void AI;
+    
+    extern void ooc_ai_load();
+    extern Answer AI__AI_step(void*, struct GameInfo);
+    extern AI* getAI();
 }
+
+// end ooc AI!
 
 #include "controls.hpp"
 
@@ -152,7 +158,7 @@ int CONTROLS::snapinput(int *data)
 		static AI *ai = NULL;
 		if(!ai) {
 			dbg_msg("ia", "Initializing AI");
-			_ooc_ai_load();
+			ooc_ai_load();
 			ai = getAI();
 		}
 		
@@ -173,7 +179,7 @@ int CONTROLS::snapinput(int *data)
 		info.numChars = gameclient.numChars;
 		info.chars = gameclient.chars;
 		
-		struct Answer answer = AI_step(ai, info);
+		struct Answer answer = AI__AI_step(ai, info);
 		uint32_t action = answer.action;
 		//dbg_msg("ia", "got action = %x", action);
 		

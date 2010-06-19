@@ -1,5 +1,5 @@
 import EagleAI, NddAI, AI
 
-getAI: func -> AI {
+getAI: unmangled func -> AI {
 	return NddAI new()	
 }

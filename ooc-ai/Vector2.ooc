@@ -1,4 +1,5 @@
 use math
+import math
 
 Vector2: cover {
 	x, y: Float

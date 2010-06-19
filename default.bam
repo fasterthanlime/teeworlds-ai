@@ -155,9 +155,15 @@ function build(settings)
 	pnglite = Compile(settings, Collect("src/engine/external/pnglite/*.c"))
 	
 	-- ooc AI !
-	settings.link.flags:Add("ooc-ai/ooc-ai.o")
+	settings.link.flags:Add("ooc-ai/.libs/ooc-ai-linux32.a")
+    settings.link.flags:Add("ooc-ai/.libs/sdk-linux32.a")
+    -- settings.link.flags:Add("ooc-ai/.libs/ooc-cairo-linux32.a")
+    -- settings.link.flags:Add("ooc-ai/.libs/ooc-gdk-linux32.a")
+    -- settings.link.flags:Add("ooc-ai/.libs/gtk-vcs-danopia-linux32.a")
 	settings.link.flags:Add("ooc-ai/libs/libgc.a")
-	settings.cc.includes:Add("ooc-ai/")
+	settings.cc.includes:Add("ooc-ai/.libs/")
+    settings.cc.includes:Add("ooc-ai/.libs/ooc-ai/")
+    settings.cc.includes:Add("ooc-ai/.libs/sdk/")
 	
 	-- build game components
 	engine_settings = settings:Copy()

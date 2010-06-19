@@ -1,4 +1,4 @@
-import AI, Grid, Vector2
+import AI, Grid, Vector2, Canvas, math, math/Random
 
 NddAI: class extends AI {
 	
@@ -75,12 +75,12 @@ NddAI: class extends AI {
 
 		// from time to time, try to jump to explore the upper part of the map
 		// except if we're trying to determine if there's a deadend there.
-		tryJump := (bumpCount == 0 && rand() % 25 == 0)
+		tryJump := (bumpCount == 0 && Random randInt(0, 25) == 0)
 		
 		// if it's supposed to jump, then jump and hook!
 		if(tryJump && nextJump <= 0) {
 			srand(info time)
-			nextJump = rand() % 50 + 20
+			nextJump = Random randInt(0, 50) + 20
 			jump()
 			hook(15)
 		}
@@ -131,8 +131,8 @@ NddAI: class extends AI {
 			halfDiff := diff * 0.5
 			
 			if(followCount <= 0) {
-				followCount = rand() % 60
-				follow := !follow
+				followCount = Random randInt(0, 60)
+				follow = !follow
 			}
 			
 			if(follow) {
