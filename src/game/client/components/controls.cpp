@@ -203,6 +203,32 @@ int CONTROLS::snapinput(int *data)
 			mouse_pos.x = answer.mouse->x;
 			mouse_pos.y = answer.mouse->y;
 		}
+        
+        if(answer.nextWeapon) {
+            console_execute_line_stroked(1, "+nextweapon");
+        }
+        if(answer.prevWeapon) {
+            console_execute_line_stroked(1, "+prevweapon");
+        }
+        if(answer.wantedWeapon != 0) {
+            switch (answer.wantedWeapon) {
+                case 1:
+                    console_execute_line_stroked(1, "+weapon1");
+                    break;
+                case 2:
+                    console_execute_line_stroked(1, "+weapon2");
+                    break;
+                case 3:
+                    console_execute_line_stroked(1, "+weapon3");
+                    break;
+                case 4:
+                    console_execute_line_stroked(1, "+weapon4");
+                    break;
+                case 5:
+                    console_execute_line_stroked(1, "+weapon5");
+                    break;
+            }
+        }
 			
 		input_data.hook = (action & Actions_HOOK);
 		

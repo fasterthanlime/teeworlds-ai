@@ -9,7 +9,8 @@ Blocks: class {
 	DEADEND = 2,
 	GROUND 	= 3,
 	CEIL 	= 4,
-	FALL 	= 5 : static const Block
+	FALL 	= 5,
+    UNKNOWN = 6 : static const Block
 	
 }
 
@@ -27,10 +28,10 @@ Grid: class {
         }
 	}
 	
-	print: func {
+	print: func (playerx, playery: Int) {
 		
 		for(x in 0..(width / 2 + 2)) {
-			printf("=")
+        	printf("=")
 		}
 		println()
 		
@@ -39,23 +40,30 @@ Grid: class {
 			printf("|")
 			for(x in 0..width) {
 				if(x % 2 == 0) continue
-				val := get(x, y)
-				printf("%s", match val {
-					case Blocks EMPTY   => " "
-					case Blocks WALL    => "."
-					case Blocks DEADEND => "X"
-					case Blocks GROUND  => "_"
-					case Blocks CEIL	=> "~"
-					case Blocks FALL 	=> "v"
-					case => " "
-				})
+                
+                if((x - playerx > -3 && x - playerx < 3) &&
+                   (y - playery > -3 && y - playery < 3)) {
+                    'o' print()
+                } else {
+                    val := get(x, y)
+                    printf("%s", match val {
+                        case Blocks EMPTY   => " "
+                        case Blocks WALL    => "."
+                        case Blocks DEADEND => "X"
+                        case Blocks GROUND  => "_"
+                        case Blocks CEIL	=> "~"
+                        case Blocks FALL 	=> "v"
+                        case Blocks UNKNOWN => "?"
+                        case => " "
+                    })
+                }
 			}
 			printf("|")
 			println()
 		}
 		
 		for(x in 0..(width / 2 + 2)) {
-			printf("=")
+        	printf("=")
 		}
 		println()
 		
@@ -63,7 +71,7 @@ Grid: class {
 	
 	get: func (x, y: Int) -> Block {
 		if(x < 0 || x >= width || y < 0 || y >= height) {
-			return Blocks WALL
+			return Blocks UNKNOWN
 		}
 		return data get(y * width + x)
 	}
@@ -88,10 +96,14 @@ Grid: class {
 	
 	ground: func (x, y: Int) {
 		set(x, y, Blocks GROUND)
+        set(x - 1, y, Blocks GROUND)
+        set(y - 1, y, Blocks GROUND)
 	}
 	
 	ceil: func (x, y: Int) {
-		set(x, y, Blocks CEIL)
+        set(x, y, Blocks CEIL)
+        set(x - 1, y, Blocks CEIL)
+        set(y - 1, y, Blocks CEIL)
 	}
 	
 	deadend: func (x, y: Int) {

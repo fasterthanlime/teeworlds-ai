@@ -24,6 +24,9 @@ struct Answer {
     uint32_t action;
     struct Vector2* target;
     struct Vector2* mouse;
+    uint32_t prevWeapon;
+    uint32_t nextWeapon;
+    uint32_t wantedWeapon;
 };
 
 #define Actions_NONE  0x00

@@ -1,5 +1,7 @@
-import EagleAI, NddAI, AI
+import EagleAI, NddAI, Ndd2AI, AI
 
 getAI: unmangled func -> AI {
-	return NddAI new()	
+    return Ndd2AI new()	
+	//return NddAI new()	
+    //return EagleAI new()
 }

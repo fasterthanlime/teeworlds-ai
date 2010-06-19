@@ -7,6 +7,9 @@ dbg_msg: extern proto func (module, fmt: String, ...)
 Answer: cover {
 	action: Action
 	target, mouse: Vector2*
+    prevWeapon: UInt32
+    nextWeapon: UInt32
+    wantedWeapon: UInt32
 }
 
 GameInfo: cover {
