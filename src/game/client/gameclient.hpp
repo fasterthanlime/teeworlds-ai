@@ -18,6 +18,8 @@ struct GameInfo {
     struct Vector2 mouse;
     int numChars;
     struct Vector2* chars;
+    int numPlayers;
+    const NETOBJ_PLAYER_INFO** playerInfos;
 };
 
 struct Answer {

@@ -19,6 +19,17 @@ GameInfo: cover {
 	
 	numChars: Int
 	chars: Vector2*
+    numPlayers: Int
+    playerInfos: PlayerInfo**
+}
+
+PlayerInfo: cover {
+    local: Int
+    cid: Int
+    team: Int
+    score: Int
+    latency: Int
+    latencyFlux: Int
 }
 
 /**

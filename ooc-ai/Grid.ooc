@@ -1,5 +1,8 @@
 import Vector2, structs/ArrayList, math
 
+use cairo
+import cairo/[Cairo, GdkCairo]
+
 Block: cover from Int
 
 Blocks: class {
@@ -28,6 +31,53 @@ Grid: class {
         }
 	}
 	
+    paint: func (cr: Context) {
+        cr scale(1024.0 / width as Float, 768.0 / height as Float)
+        
+        cr setLineWidth(4)
+		cr setSourceRGB(255, 0, 0)
+        
+        cr moveTo(0, 0)
+        cr lineTo(width, 0)
+        cr lineTo(width, height)
+        cr lineTo(0, height)
+        cr lineTo(0, 0)
+        
+        cr closePath()
+		cr stroke()
+        
+        cr setSourceRGB(0.8, 0.8, 0.8)
+        for(y in 0..height) {
+			for(x in 0..width) {
+                if(get(x, y) == Blocks EMPTY) {
+                    cr rectangle(x - 1, y - 1, 2, 2)
+                }
+            }
+        }
+        cr fill()
+        
+        cr setSourceRGB(0.0, 0.5, 0.0)
+        for(y in 0..height) {
+			for(x in 0..width) {
+                if(get(x, y) == Blocks GROUND) {
+                    cr rectangle(x - 1, y - 1, 2, 2)
+                }
+            }
+        }
+        cr fill()
+        
+        cr setSourceRGB(1.0, 1.0, 0.0)
+        for(y in 0..height) {
+			for(x in 0..width) {
+                if(get(x, y) == Blocks DEADEND) {
+                    cr rectangle(x - 2, y - 2, 4, 4)
+                }
+            }
+        }
+        cr fill()
+        
+    }
+    
 	print: func (playerx, playery: Int) {
 		
 		for(x in 0..(width / 2 + 2)) {
@@ -53,7 +103,6 @@ Grid: class {
                         case Blocks GROUND  => "_"
                         case Blocks CEIL	=> "~"
                         case Blocks FALL 	=> "v"
-                        case Blocks UNKNOWN => "?"
                         case => " "
                     })
                 }
@@ -97,13 +146,13 @@ Grid: class {
 	ground: func (x, y: Int) {
 		set(x, y, Blocks GROUND)
         set(x - 1, y, Blocks GROUND)
-        set(y - 1, y, Blocks GROUND)
+        set(x + 1, y, Blocks GROUND)
 	}
 	
 	ceil: func (x, y: Int) {
         set(x, y, Blocks CEIL)
         set(x - 1, y, Blocks CEIL)
-        set(y - 1, y, Blocks CEIL)
+        set(x + 1, y, Blocks CEIL)
 	}
 	
 	deadend: func (x, y: Int) {

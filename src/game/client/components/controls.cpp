@@ -166,6 +166,8 @@ int CONTROLS::snapinput(int *data)
 		info.time = client_localtime();
 		
 		info.localCid = gameclient.snap.local_cid;
+        info.numPlayers = gameclient.snap.num_players;
+        info.playerInfos = gameclient.snap.player_infos;
 		
 		info.pos.x = gameclient.local_character_pos.x;
 		info.pos.y = gameclient.local_character_pos.y;

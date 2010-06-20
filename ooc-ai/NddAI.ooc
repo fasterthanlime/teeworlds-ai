@@ -205,11 +205,11 @@ NddAI: class extends AI {
         
 		if(nextJump >= 0) nextJump -= 1
 		
-		printCount -= 1
-		if(printCount <= 0) {
-			printCount = 5
-			grid print(gridx, gridy)
-		}
+		//printCount -= 1
+		//if(printCount <= 0) {
+			//printCount = 5
+			//grid print(gridx, gridy)
+		//}
 		
 		lastPos x = info pos x
 		lastPos y = info pos y
