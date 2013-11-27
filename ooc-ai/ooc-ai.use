@@ -1,0 +1,4 @@
+Name: ooc-ai
+Requires: 
+SourcePath: source
+Main: ooc-ai

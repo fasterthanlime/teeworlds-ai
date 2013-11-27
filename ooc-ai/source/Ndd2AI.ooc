@@ -2,9 +2,9 @@ import AI, Grid, Vector2, Canvas, math, math/Random
 
 Ndd2AI: class extends AI {
 	
-	// constants
-	ZOOM := static 11.0
-	BUMP_THRESHOLD := static 5
+    // constants
+    ZOOM := static 11.0
+    BUMP_THRESHOLD := static 5
     
     FOLLOW_THRESHOLD := static 300
     AIM_THRESHOLD := static 320
@@ -14,8 +14,6 @@ Ndd2AI: class extends AI {
     left := true
     up := false
     bumpCount := 0
-    
-    hookCount := -1
     
     holeCounter := 0
     deadEndCounter := 0
@@ -31,7 +29,7 @@ Ndd2AI: class extends AI {
     
     gridx, gridy: Int
 	
-	grid := Grid new(300, 200)
+    grid := Grid new(300, 200)
     canvas := Canvas new(1024, 768)
     
     init: func {
@@ -59,15 +57,15 @@ Ndd2AI: class extends AI {
         
         canvas update()
         
-        answer prevWeapon = false
-        answer nextWeapon = false
+        answer prevWeapon = 0
+        answer nextWeapon = 0
         answer wantedWeapon = 0
         
         dbg_msg("ia", "Got %d players!\n", info numPlayers)
-		
-		// get our grid coordinates
-		gridx = (info pos x / ZOOM) as Int
-		gridy = (info pos y / ZOOM) as Int
+        
+        // get our grid coordinates
+        gridx = (info pos x / ZOOM) as Int
+        gridy = (info pos y / ZOOM) as Int
         
         if (left) {
             left()
@@ -108,7 +106,7 @@ Ndd2AI: class extends AI {
         ourTeam := -1
         for(j in 0..info numPlayers) {
             playerInfo := info playerInfos[j]
-            if(playerInfo != null && playerInfo@ cid == info localCid) {
+            if(playerInfo as Pointer != null && playerInfo@ cid == info localCid) {
                 ourTeam = playerInfo@ team
             }
         }
@@ -191,7 +189,7 @@ Ndd2AI: class extends AI {
         upCounter += 1 
         if(upCounter > 200) {
             up = !up
-            dbg_msg("ia", "now going %s!", up ? "up" : "down")
+            dbg_msg("ia", "now going %s!", up ? c"up" : c"down")
             upCounter = 0
         }
         
